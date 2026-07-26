@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
   repository: driveopssurya/nodejs-app
-  tag: 49cead213b449c10834030599a179b464167c64e
+  tag: 599e58c622c7b63131e2063033d344d293d0f641
   pullPolicy: Always
 imagePullSecrets:
   - name: regcred
