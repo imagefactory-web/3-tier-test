@@ -513,50 +513,53 @@ jobs:
           git push origin main
             
   deploy-to-k8s:
-    name: Deploy to Kubernetes
+    name: Update Helm GitOps Manifest
     runs-on: ubuntu-latest
     needs: update-manifest
-    env:
-      AWS_REGION: ap-south-1
-      EKS_CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME }}
-      K8S_NAMESPACE: qa
 
     steps:
+
       - name: Checkout latest code
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: main   # ← explicitly pull latest qa, not the trigger SHA
+          ref: main
 
-      - name: Configure AWS credentials from GitHub OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Setup kubectl
-        uses: azure/setup-kubectl@v4
+      - name: Install yq
+        uses: mikefarah/yq@v4
 
-      - name: Generate kubeconfig for EKS
-        run: aws eks update-kubeconfig --region "${AWS_REGION}" --name "${EKS_CLUSTER_NAME}"
 
-      - name: Verify identity
+      - name: Update Helm image tag
         run: |
-          aws sts get-caller-identity
-          kubectl config current-context
+          IMAGE_TAG=${{ github.sha }}
 
-      - name: Verify namespace access
-        run: |
-          kubectl get pods -n "${K8S_NAMESPACE}"
-          kubectl get services -n "${K8S_NAMESPACE}"
-          kubectl auth can-i create deployments -n "${K8S_NAMESPACE}"
-          kubectl auth can-i create services -n "${K8S_NAMESPACE}"
-          kubectl auth can-i create ingresses.networking.k8s.io -n "${K8S_NAMESPACE}"
+          echo "Updating image tag to ${IMAGE_TAG}"
 
-      - name: Deploy manifests
-        run: |
-          kubectl apply -f k8-manifests/ -n "${K8S_NAMESPACE}"
+          yq -i \
+          '.image.tag = strenv(IMAGE_TAG)' \
+          helm/nodejs-app/values.yaml
 
-      - name: Verify rollout
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+
+
+      - name: Verify Helm values
         run: |
-          kubectl rollout status deployment/nodejs-app -n "${K8S_NAMESPACE}" --timeout=180s
+          cat helm/nodejs-app/values.yaml
+
+
+      - name: Commit Helm change
+        run: |
+          git config user.name "github-actions"
+
+          git config user.email "github-actions@github.com"
+
+          git add helm/nodejs-app/values.yaml
+
+          git commit -m "Update nodejs image tag to ${{ github.sha }}" || echo "No changes to commit"
+
+
+      - name: Push GitOps change
+        run: |
+          git push origin main
