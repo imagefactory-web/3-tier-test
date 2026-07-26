@@ -485,6 +485,8 @@ jobs:
             
   deploy-to-k8s:
     name: Update Helm GitOps Manifest
+    needs:
+      - docker   
     runs-on: ubuntu-latest
     steps:
 
