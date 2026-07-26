@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UserHub - User Management Platform</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .logo {
+      font-size: 1.8em;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .navbar a {
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 6px;
+      color: #ffffff;
+      background-color: rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .navbar a:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .home, .about, .features, .contact { 
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .content {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 850px;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      text-align: center;
+      color: #1e3c72;
+      margin-bottom: 30px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    h2 {
+      color: #2a5298;
+      margin-bottom: 10px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .form-container {
+      margin-bottom: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2a5298;
+    }
+
+    .form-group input, .form-group select {
+      width: calc(100% - 20px);
+      padding: 12px;
+      margin-right: 10px;
+      border: 2px solid rgba(102, 126, 234, 0.3);
+      border-radius: 6px;
+      font-size: 1em;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 8px rgba(102, 126, 234, 0.5);
+    }
+
+    .form-group button, .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .form-group button:hover, .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .user-list-container {
+      margin-top: 30px;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      padding: 15px 20px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      border-left: 4px solid #667eea;
+    }
+
+    li:last-child {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    li:hover {
+      background-color: rgba(102, 126, 234, 0.05);
+      transform: translateX(4px);
+    }
+
+    .buttons-container {
+      display: flex;
+      gap: 12px;
+    }
+
+    .edit, .delete {
+      background-color: transparent;
+      border: 2px solid;
+      border-radius: 6px;
+      padding: 8px 15px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-size: 0.9em;
+    }
+
+    .edit {
+      border-color: #667eea;
+      color: #667eea;
+    }
+
+    .delete {
+      border-color: #e74c3c;
+      color: #e74c3c;
+    }
+
+    .edit:hover {
+      background-color: #667eea;
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .delete:hover {
+      background-color: #e74c3c;
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+    }
+
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="logo">UserHub</div>
+    <div class="links">
+      <a href="/" class="home">Home</a>
+      <a href="https://www.youtube.com/@driveops_surya" class="youtube" target="_blank" rel="noopener noreferrer">YouTube</a>
+      <a href="https://www.instagram.com/driveops_surya/" class="instagram" target="_blank" rel="noopener noreferrer">Instagram</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="content">
+      <h1>UserHub - User Management Platform</h1>
+
+      <!-- Add User Form -->
+      <div class="form-container">
+        <h2>Add User</h2>
+        <form id="addUserForm">
+          <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" placeholder="Name" required />
+          </div>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" placeholder="Email" required />
+          </div>
+          <div class="form-group">
+            <label for="role">Role:</label>
+            <select id="role" required>
+              <option value="User">User</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="submit-btn">Add User</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- User List -->
+      <div class="user-list-container">
+        <h2>User List</h2>
+        <ul id="userList">
+          <!-- User items will be dynamically added here -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="bundle.js"></script>
+</body>
+</html>
+

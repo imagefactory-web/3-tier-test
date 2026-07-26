@@ -1,0 +1,45 @@
+apiVersion: v1
+
+kind: Service
+
+metadata:
+
+  name: {{ .Values.service.name | default "nodejs-service" }}
+  namespace: {{ .Values.namespace }}
+spec:
+
+  type: {{ .Values.service.type }}
+
+  selector:
+
+    app: {{ include "nodejs-app.name" . }}
+
+  ports:
+
+  - port: {{ .Values.service.port }}
+
+    targetPort: {{ .Values.service.port }}
+
+---
+
+apiVersion: v1
+
+kind: Service
+
+metadata:
+
+  name: {{ .Values.mysqlService.name | default "mysql" }}
+  namespace: {{ .Values.namespace }}
+spec:
+
+  type: ClusterIP
+
+  selector:
+
+    app: mysql
+
+  ports:
+
+  - port: {{ .Values.mysqlService.port | default 3306 }}
+
+    targetPort: {{ .Values.mysqlService.port | default 3306 }}
