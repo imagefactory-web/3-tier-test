@@ -1,29 +1,22 @@
 replicaCount: 1
-
 image:
   repository: driveopssurya/nodejs-app
-  tag: latest
+  tag: 927a3db769b71c728460e893aac5fc4c02be4038
   pullPolicy: Always
-
 imagePullSecrets:
   - name: regcred
-
 service:
   name: nodejs-service
   type: ClusterIP
   port: 5000
-
 ingress:
   enabled: true
   className: alb
   host: my-art.sbs
   certificateArn: arn:aws:acm:ap-south-1:213615930222:certificate/7a0b6234-74ef-4ccb-8c24-70e9e957de29
-
 namespace: qa
-
 database:
   host: mysql
-
 mysqlService:
   name: mysql
   port: 3306
