@@ -31,7 +31,29 @@ aws eks update-kubeconfig --region ap-south-1 --name qa-cluster
 
 3. Create a Docker Hub personal access token (Settings → Account → Security → Personal Access Tokens) and note it.
 
-4. Clone the repo and run scripts:
+4. Optionally install Argo CD in the cluster:
+
+```bash
+kubectl create namespace argocd
+
+helm repo add argo https://argoproj.github.io/argo-helm
+helm repo update
+
+helm install argocd argo/argo-cd \
+  -n argocd \
+  --create-namespace
+
+kubectl patch svc argocd-server -n argocd -p '{"spec":{"type":"LoadBalancer"}}'
+
+kubectl get svc -n argocd
+
+kubectl get svc argocd-server -n argocd -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d && echo
+```
+
+5. Clone the repo and run scripts:
 
 Before running the scripts
 
@@ -132,8 +154,8 @@ This section covers Route53 DNS setup, ACM certificate provisioning, and ALB con
 
 ### 3. Update Ingress with Certificate and Domain
 
-1. Open `k8-manifests/app-ingress.yaml`.
-2. Update **line 11** with your certificate ARN:
+1. Open `helm\nodejs-app`.
+2.Open values.yaml **line 20** with your certificate ARN:
    ```yaml
    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:YOUR_ACCOUNT_ID:certificate/YOUR_CERT_ID
    ```
@@ -142,28 +164,7 @@ This section covers Route53 DNS setup, ACM certificate provisioning, and ALB con
    - host: my-art.sbs
    ```
 
-### 4. Update Deployment with Repository Image
-
-1. Open `k8-manifests/app-deployment.yaml`.
-2. Update **line 20** with your Docker Hub repository URL:
-   ```yaml
-   image: DOCKERHUB_USERNAME/nodejs-app:LATEST_TAG
-   ```
-   - Example: `image: your-handle/nodejs-app:latest`
-
-### 5. Trigger the CI/CD Pipeline
-
-1. Make a small edit to `.github/workflows/cicd.yml` (e.g., add a comment or update a trigger condition).
-2. Commit and push the change:
-   ```bash
-   git add .github/workflows/cicd.yml
-   git commit -m "trigger: update cicd workflow"
-   git push origin main
-   ```
-3. The pipeline will start automatically. Monitor it on the **GitHub Actions** tab.
-4. Once the pipeline completes, the Docker image will be built and pushed to Docker Hub, and the deployment will be updated in EKS.
-
-### 6. Create Route53 Alias Record for Load Balancer
+### 4. Create Route53 Alias Record for Load Balancer
 
 1. After the ingress controller provisions the ALB (check with `kubectl get ingress -n qa`), get the ALB DNS name:
    ```bash
@@ -179,6 +180,24 @@ This section covers Route53 DNS setup, ACM certificate provisioning, and ALB con
 7. Choose your **Region** (e.g., `ap-south-1`).
 8. Select the **Load Balancer** from the dropdown (it should match the ALB DNS you copied above).
 9. Click **Create records**.
+
+### 5. Argocd Sync Step
+```bash
+kubectl apply -f argocd/application.yaml
+kubectl get applications -n argocd
+```
+
+### 6. Trigger the CI/CD Pipeline
+
+1. Make a small edit to `.github/workflows/cicd.yml` (e.g., add a comment or update a trigger condition).
+2. Commit and push the change:
+   ```bash
+   git add .github/workflows/cicd.yml
+   git commit -m "trigger: update cicd workflow"
+   git push origin main
+   ```
+3. The pipeline will start automatically. Monitor it on the **GitHub Actions** tab.
+4. Once the pipeline completes, the Docker image will be built and pushed to Docker Hub, and the deployment will be updated in EKS.
 
 You should now be able to access your application at `https://my-art.sbs` (or your domain).
 
