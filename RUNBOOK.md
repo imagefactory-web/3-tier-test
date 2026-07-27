@@ -31,7 +31,7 @@ aws eks update-kubeconfig --region ap-south-1 --name qa-cluster
 
 3. Create a Docker Hub personal access token (Settings → Account → Security → Personal Access Tokens) and note it.
 
-4. Optionally install Argo CD in the cluster:
+4. Install Argo CD in the cluster:
 
 ```bash
 kubectl create namespace argocd
