@@ -13,7 +13,7 @@ ingress:
   enabled: true
   className: alb
   host: my-art.sbs
-  certificateArn: arn:aws:acm:ap-south-1:213615930222:certificate/7a0b6234-74ef-4ccb-8c24-70e9e957de29
+  certificateArn: arn:aws:acm:ap-south-1:213615930222:certificate/0d41bf59-6160-4295-8298-5d2fa81efc0f
 namespace: qa
 database:
   host: mysql
